@@ -1,0 +1,9 @@
+<resources>
+    <declare-styleable name="Ruchka">
+        <attr name="labelText" format="string"/>
+        <attr name="minValue" format="float"/>
+        <attr name="maxValue" format="float"/>
+        <attr name="defaultValue" format="float"/>
+        <attr name="value" format="float"/>
+    </declare-styleable>
+</resources>

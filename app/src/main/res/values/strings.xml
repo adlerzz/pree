@@ -9,4 +9,6 @@
     <string name="cut_h">High border: %s</string>
     <string name="pitch">Pitch offset: %s</string>
     <string name="qu">Quantizing: %s</string>
+    <string name="reset_def">Reset</string>
+
 </resources>

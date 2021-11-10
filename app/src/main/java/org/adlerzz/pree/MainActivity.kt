@@ -7,7 +7,6 @@ import android.media.*
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.widget.Button
-import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -30,7 +29,9 @@ class MainActivity : AppCompatActivity() {
 
     var buffSize = 0
     var cstSize = 0
-    var buffer = ShortArray(0) { 0 }
+    var inBuffer = ShortArray(0) { 0 }
+    var outBuffer = ShortArray(0) { 0 }
+    var displayedData = DoubleArray(0) { 0.0 }
     private var active = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,13 +61,6 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.textView1).movementMethod = ScrollingMovementMethod()
 
         graphSetup(R.id.graph1)
-
-        bindText(R.id.tr_pitch, R.id.lab_pitch, R.string.pitch)
-        bindText(R.id.tr_kamp, R.id.lab_kamp, R.string.kamp)
-        bindText(R.id.tr_lim,  R.id.lab_lim, R.string.lim)
-        bindText(R.id.tr_cut_l,  R.id.lab_cut_l, R.string.cut_l)
-        bindText(R.id.tr_cut_h,  R.id.lab_cut_h, R.string.cut_h)
-        bindText(R.id.tr_qu, R.id.lab_qu, R.string.qu)
     }
 
 
@@ -77,8 +71,28 @@ class MainActivity : AppCompatActivity() {
         tx.scrollTo(0, tx.height)
     }
 
+    private fun doTransforms() {
+        val cutLow = findViewById<Ruchka>(R.id.r_cut_l).value
+        val cutHigh = findViewById<Ruchka>(R.id.r_cut_h).value
+        val kamp = findViewById<Ruchka>(R.id.r_kamp).value
+        val limit = findViewById<Ruchka>(R.id.r_lim).value
+        val pitch = findViewById<Ruchka>(R.id.r_pitch).value
+        val qu = findViewById<Ruchka>(R.id.r_qu).value
+
+        val dstr = Engine.distortion(this.inBuffer, kamp, limit)
+        val frequencies = Engine.fft(dstr, this.cstSize)
+        val cutted = Engine.cFrequenciesCut(frequencies, cutLow, cutHigh)
+        val pitched = Engine.cPitch(cutted, pitch)
+        val dat = Engine.ifft(pitched, this.buffSize)
+        val qued = Engine.quantize(dat, qu)
+        val fdat = Engine.getAbs(pitched)
+
+        this.displayedData = DoubleArray(this.cstSize / 2) {i -> fdat[i]}
+        this.outBuffer = ShortArray(this.buffSize) {i -> qued[i]}
+    }
+
     fun activate() {
-        this.buffer = ShortArray(buffSize) {0}
+        this.inBuffer = ShortArray(buffSize) {0}
 
         this.audioRecord = createAudioRecord(buffSize)
         this.audioRecord?.startRecording()
@@ -91,26 +105,12 @@ class MainActivity : AppCompatActivity() {
         this.timer.schedule(object: TimerTask(){
             override fun run() {
                 val self = this@MainActivity
-                self.audioRecord?.read(self.buffer, 0, self.buffSize)
+                self.audioRecord?.read(self.inBuffer, 0, self.buffSize)
 
-                val cutLow = getDoubleValue(findViewById(R.id.tr_cut_l))
-                val cutHigh = getDoubleValue(findViewById(R.id.tr_cut_h))
-                val kamp = getDoubleValue(findViewById(R.id.tr_kamp))
-                val limit = getDoubleValue(findViewById(R.id.tr_lim))
-                val pitch = getDoubleValue(findViewById(R.id.tr_pitch))
-                val qu = getDoubleValue(findViewById(R.id.tr_qu))
+                self.doTransforms() // f( inBuffer ) -> outBuffer, displayedData
 
-                val dstr = Engine.distortion(self.buffer, kamp, limit)
-                val frequencies = Engine.fft(dstr, self.cstSize)
-                val cutted = Engine.cFrequenciesCut(frequencies, cutLow, cutHigh)
-                val pitched = Engine.cPitch(cutted, pitch)
-                val dat = Engine.ifft(pitched, self.buffSize)
-                val qued = Engine.quantize(dat, qu)
-                val fdat = Engine.getAbs(pitched)
-
-                graphRender(grph, fdat)
-
-                self.audioTrack?.write(qued, 0, self.buffSize)
+                graphRender(grph, self.displayedData)
+                self.audioTrack?.write(self.outBuffer, 0, self.buffSize)
             }
         }, 0, FRAME_DURATION)
         this.active = true
@@ -149,27 +149,6 @@ class MainActivity : AppCompatActivity() {
         graph.removeAllSeries()
         graph.addSeries(series)
     }
-
-    private fun bindText(seekBarId: Int, textViewId: Int, stringId: Int) {
-        val bar = findViewById<SeekBar>(seekBarId)
-        val txt = findViewById<TextView>(textViewId)
-        val lab = getString(stringId, getStringValue(bar))
-        bar.setOnSeekBarChangeListener( createSeekBarListener(txt, stringId))
-        txt.text = lab
-    }
-
-    private fun createSeekBarListener(textView: TextView, stringId: Int): SeekBar.OnSeekBarChangeListener{
-        return object : SeekBar.OnSeekBarChangeListener{
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                textView.text = getString(stringId, getStringValue(seekBar!!))
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        }
-    }
-
-    fun getDoubleValue(seekbar: SeekBar): Double = seekbar.progress / 1000.0
-    fun getStringValue(seekbar: SeekBar): String = String.format("%.3f", getDoubleValue(seekbar))
 
     private fun createAudioRecord(bufferSize: Int): AudioRecord? {
         val ch = ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)

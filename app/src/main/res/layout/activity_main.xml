@@ -32,9 +32,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView1"
-        app:layout_constraintBottom_toTopOf="@+id/group_pitch"
-        />
-
+        app:layout_constraintBottom_toTopOf="@+id/r_pitch" />
 
     <Button
         android:id="@+id/button"
@@ -47,172 +45,82 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/group_pitch"
+    <org.adlerzz.pree.Ruchka
+        android:id="@+id/r_pitch"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginStart="0dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/r_kamp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/group_kamp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:labelText="@string/pitch"
+        app:maxValue="0.5"
+        app:minValue="-0.5"
+        app:defaultValue="0.0">
+    </org.adlerzz.pree.Ruchka>
 
-        <TextView
-            android:id="@+id/lab_pitch"
-            android:text="@string/pitch"
-            android:layout_width="wrap_content"
-            android:layout_height="19dp"
-            android:layout_marginStart="8dp"/>
-
-        <SeekBar
-            android:id="@+id/tr_pitch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="1000"
-            android:min="-1000"
-            android:progress="0" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/group_kamp"
+    <org.adlerzz.pree.Ruchka
+        android:id="@+id/r_kamp"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginStart="0dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/r_lim"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/group_lim">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:labelText="@string/kamp"
+        app:maxValue="9.8"
+        app:minValue="0.8"
+        app:defaultValue="1.0">
+    </org.adlerzz.pree.Ruchka>
 
-        <TextView
-            android:id="@+id/lab_kamp"
-            android:text="@string/kamp"
-            android:layout_width="wrap_content"
-            android:layout_height="19dp"
-            android:layout_marginStart="8dp"/>
-
-        <SeekBar
-            android:id="@+id/tr_kamp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="9800"
-            android:min="800"
-            android:progress="1000" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/group_lim"
+    <org.adlerzz.pree.Ruchka
+        android:id="@+id/r_lim"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginStart="0dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/r_cut_h"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/group_cut_h">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:labelText="@string/lim"
+        app:maxValue="1.0"
+        app:minValue="0.01"
+        app:defaultValue="0.8">
+    </org.adlerzz.pree.Ruchka>
 
-        <TextView
-            android:id="@+id/lab_lim"
-            android:text="@string/lim"
-            android:layout_width="wrap_content"
-            android:layout_height="19dp"
-            android:layout_marginStart="8dp"/>
-
-        <SeekBar
-            android:id="@+id/tr_lim"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="1000"
-            android:min="10"
-            android:progress="800" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/group_cut_h"
+    <org.adlerzz.pree.Ruchka
+        android:id="@+id/r_cut_h"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginStart="0dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/r_cut_l"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/group_cut_l">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:labelText="@string/cut_h"
+        app:maxValue="1.0"
+        app:minValue="0.0"
+        app:defaultValue="0.5">
+    </org.adlerzz.pree.Ruchka>
 
-        <TextView
-            android:id="@+id/lab_cut_h"
-            android:text="@string/cut_h"
-            android:layout_width="wrap_content"
-            android:layout_height="19dp"
-            android:layout_marginStart="8dp"/>
-
-        <SeekBar
-            android:id="@+id/tr_cut_h"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="1000"
-            android:min="0"
-            android:progress="500" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/group_cut_l"
+    <org.adlerzz.pree.Ruchka
+        android:id="@+id/r_cut_l"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginStart="0dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/r_qu"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/group_qu">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:labelText="@string/cut_l"
+        app:maxValue="1.0"
+        app:minValue="0.0"
+        app:defaultValue="0.5">
+    </org.adlerzz.pree.Ruchka>
 
-        <TextView
-            android:id="@+id/lab_cut_l"
-            android:text="@string/cut_l"
-            android:layout_width="wrap_content"
-            android:layout_height="19dp"
-            android:layout_marginStart="8dp"/>
-
-        <SeekBar
-            android:id="@+id/tr_cut_l"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="1000"
-            android:min="0"
-            android:progress="500" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/group_qu"
+    <org.adlerzz.pree.Ruchka
+        android:id="@+id/r_qu"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginStart="0dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/button"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/button">
-
-        <TextView
-            android:id="@+id/lab_qu"
-            android:text="@string/qu"
-            android:layout_width="wrap_content"
-            android:layout_height="19dp"
-            android:layout_marginStart="8dp"/>
-
-        <SeekBar
-            android:id="@+id/tr_qu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="1000"
-            android:min="0"
-            android:progress="0" />
-
-    </LinearLayout>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:labelText="@string/qu"
+        app:maxValue="1.0"
+        app:minValue="0.0"
+        app:defaultValue="0.0">
+    </org.adlerzz.pree.Ruchka>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
