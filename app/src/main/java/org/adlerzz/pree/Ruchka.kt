@@ -35,6 +35,7 @@ class Ruchka : TableLayout {
         )
 
         default = a.getFloat(R.styleable.Ruchka_defaultValue, 0.0f).toDouble()
+        this.value = default
         text = a.getString(R.styleable.Ruchka_labelText)
 
 

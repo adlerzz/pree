@@ -5,7 +5,9 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.media.*
 import android.os.Bundle
+import android.os.Handler
 import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -18,20 +20,28 @@ import java.util.*
 const val SAMPLE_RATE = 22050
 const val FRAME_DURATION = 185L
 
-const val MAX = 4_000_000.0
+const val MAX = 100.0
 
 class MainActivity : AppCompatActivity() {
 
-    var audioRecord: AudioRecord? = null
-    var audioTrack: AudioTrack? = null
-    var logs: String = ""
+    private lateinit var audioRecord: AudioRecord
+    private lateinit var audioTrack: AudioTrack
+    var staticLogs: String = ""
+    var dynamicLogs: String = ""
+    var dynamicHandler: Handler = Handler {
+        val tx = findViewById<TextView>(R.id.dynamicLog)
+        tx.text = this.dynamicLogs
+        tx.scrollTo(0, tx.height)
+        return@Handler true;
+    }
     var timer: Timer = Timer()
 
     var buffSize = 0
     var cstSize = 0
-    var inBuffer = ShortArray(0) { 0 }
-    var outBuffer = ShortArray(0) { 0 }
-    var displayedData = DoubleArray(0) { 0.0 }
+    var hzPerSample = 0.0;
+    lateinit var inBuffer: ShortArray
+    lateinit var outBuffer: ShortArray
+    lateinit var displayedData: DoubleArray
     private var active = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,8 +55,9 @@ class MainActivity : AppCompatActivity() {
         )
         this.buffSize = Math.max(this.buffSize, Math.ceil(SAMPLE_RATE * FRAME_DURATION / 2000.0).toInt() * 2 )
         this.cstSize = Engine.r2u(this.buffSize)
-        this.addLog("buff: ${this.buffSize};\n")
-        this.addLog("c2st: ${this.cstSize};\n")
+        this.hzPerSample = SAMPLE_RATE / (this.cstSize * 2.0);
+        this.addStaticLog("buff: ${this.buffSize};\n")
+        this.addStaticLog("c2st: ${this.cstSize};\n")
 
         findViewById<Button>(R.id.button).setOnClickListener {
             if (this.active) {
@@ -58,17 +69,24 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<TextView>(R.id.textView1).movementMethod = ScrollingMovementMethod()
-
         graphSetup(R.id.graph1)
     }
 
-
-    private fun addLog(s: String) {
-        this.logs = this.logs + s
-        val tx = findViewById<TextView>(R.id.textView1)
-        tx.text = this.logs
+    private fun addStaticLog(s: String) {
+        this.staticLogs = this.staticLogs + s
+        val tx = findViewById<TextView>(R.id.staticLog)
+        tx.text = this.staticLogs
         tx.scrollTo(0, tx.height)
+    }
+
+    private fun clearDynamicLog() {
+        this.dynamicLogs = ""
+        this.dynamicHandler.sendEmptyMessage(0);
+    }
+
+    private fun addDynamicLog(s: String) {
+        this.dynamicLogs = this.dynamicLogs + s
+        this.dynamicHandler.sendEmptyMessage(0);
     }
 
     private fun doTransforms() {
@@ -76,49 +94,56 @@ class MainActivity : AppCompatActivity() {
         val cutHigh = findViewById<Ruchka>(R.id.r_cut_h).value
         val kamp = findViewById<Ruchka>(R.id.r_kamp).value
         val limit = findViewById<Ruchka>(R.id.r_lim).value
-        val pitch = findViewById<Ruchka>(R.id.r_pitch).value
+        val pitch = findViewById<Ruchka>(R.id.r_pitch).value / this.hzPerSample
         val qu = findViewById<Ruchka>(R.id.r_qu).value
+
+        this.addDynamicLog("cut: ${cutLow} ~ ${cutHigh}\n")
+        this.addDynamicLog("dist: ${kamp} ~ ${limit}\n")
+        this.addDynamicLog("pitch: ${pitch}\n")
 
         val dstr = Engine.distortion(this.inBuffer, kamp, limit)
         val frequencies = Engine.fft(dstr, this.cstSize)
         val cutted = Engine.cFrequenciesCut(frequencies, cutLow, cutHigh)
         val pitched = Engine.cPitch(cutted, pitch)
+        //val dat = Engine.ifft(frequencies, this.buffSize)
         val dat = Engine.ifft(pitched, this.buffSize)
-        val qued = Engine.quantize(dat, qu)
+        //val qued = Engine.quantize(dat, qu)
+
         val fdat = Engine.getAbs(pitched)
 
-        this.displayedData = DoubleArray(this.cstSize / 2) {i -> fdat[i]}
-        this.outBuffer = ShortArray(this.buffSize) {i -> qued[i]}
+        this.displayedData = DoubleArray(fdat.size) {i -> fdat[i]}
+        this.outBuffer = ShortArray(this.buffSize) {i -> dat[i]}
     }
 
     fun activate() {
         this.inBuffer = ShortArray(buffSize) {0}
 
         this.audioRecord = createAudioRecord(buffSize)
-        this.audioRecord?.startRecording()
+        this.audioRecord.startRecording()
 
         this.audioTrack = createAudioTrack(buffSize)
-        this.audioTrack?.play()
+        this.audioTrack.play()
 
         val grph = findViewById<GraphView>(R.id.graph1)
 
         this.timer.schedule(object: TimerTask(){
             override fun run() {
+                clearDynamicLog()
                 val self = this@MainActivity
-                self.audioRecord?.read(self.inBuffer, 0, self.buffSize)
+                self.audioRecord.read(self.inBuffer, 0, self.buffSize)
 
                 self.doTransforms() // f( inBuffer ) -> outBuffer, displayedData
 
                 graphRender(grph, self.displayedData)
-                self.audioTrack?.write(self.outBuffer, 0, self.buffSize)
+                self.audioTrack.write(self.outBuffer, 0, self.buffSize)
             }
         }, 0, FRAME_DURATION)
         this.active = true
     }
 
     fun deactivate() {
-        this.audioRecord?.stop()
-        this.audioTrack?.stop()
+        this.audioRecord.stop()
+        this.audioTrack.stop()
         this.timer.cancel()
         this.timer = Timer()
         this.active = false
@@ -131,10 +156,10 @@ class MainActivity : AppCompatActivity() {
 
         grph.gridLabelRenderer.isVerticalLabelsVisible = false
 
-        this.addLog("MAX: ${MAX};\n")
+        this.addStaticLog("MAX: ${MAX};\n")
         grph.viewport.setMaxY(MAX)
         grph.viewport.setMinY(0.0)
-        grph.viewport.setMaxX(this.cstSize / 4.0)
+        grph.viewport.setMaxX(this.cstSize.toDouble() / 2.0)
         grph.viewport.setMinX(0.0)
     }
 
@@ -150,11 +175,11 @@ class MainActivity : AppCompatActivity() {
         graph.addSeries(series)
     }
 
-    private fun createAudioRecord(bufferSize: Int): AudioRecord? {
+    private fun createAudioRecord(bufferSize: Int): AudioRecord {
         val ch = ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
         if (ch != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 201)
-            return null
+            throw Exception("Permission required")
         }
 
         return AudioRecord(

@@ -1,38 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbars="vertical"
     android:keepScreenOn="true"
+    android:scrollbars="vertical"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textView1"
+    <TableLayout
+        android:id="@+id/logs"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="12dp"
+        android:layout_height="60dp"
         android:layout_marginStart="4dp"
+        android:layout_marginTop="12dp"
         android:layout_marginEnd="4dp"
-        android:scrollbars="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TableRow
+            android:id="@+id/row"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            tools:ignore="UselessParent">
+
+            <TextView
+                android:id="@+id/staticLog"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:scrollbars="vertical" />
+
+            <TextView
+                android:id="@+id/dynamicLog"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:scrollbars="vertical" />
+        </TableRow>
+
+    </TableLayout>
 
     <com.jjoe64.graphview.GraphView
         android:id="@+id/graph1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/r_pitch"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView1"
-        app:layout_constraintBottom_toTopOf="@+id/r_pitch" />
+        app:layout_constraintTop_toBottomOf="@+id/logs" />
 
     <Button
         android:id="@+id/button"
@@ -49,78 +69,72 @@
         android:id="@+id/r_pitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/r_kamp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:defaultValue="0.0"
         app:labelText="@string/pitch"
-        app:maxValue="0.5"
-        app:minValue="-0.5"
-        app:defaultValue="0.0">
-    </org.adlerzz.pree.Ruchka>
+        app:layout_constraintBottom_toTopOf="@id/r_kamp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:maxValue="320.0"
+        app:minValue="-320.0"></org.adlerzz.pree.Ruchka>
 
     <org.adlerzz.pree.Ruchka
         android:id="@+id/r_kamp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/r_lim"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:defaultValue="1.0"
         app:labelText="@string/kamp"
+        app:layout_constraintBottom_toTopOf="@id/r_lim"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:maxValue="9.8"
-        app:minValue="0.8"
-        app:defaultValue="1.0">
-    </org.adlerzz.pree.Ruchka>
+        app:minValue="0.8"></org.adlerzz.pree.Ruchka>
 
     <org.adlerzz.pree.Ruchka
         android:id="@+id/r_lim"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/r_cut_h"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:defaultValue="0.8"
         app:labelText="@string/lim"
+        app:layout_constraintBottom_toTopOf="@id/r_cut_h"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:maxValue="1.0"
-        app:minValue="0.01"
-        app:defaultValue="0.8">
-    </org.adlerzz.pree.Ruchka>
+        app:minValue="0.01"></org.adlerzz.pree.Ruchka>
 
     <org.adlerzz.pree.Ruchka
         android:id="@+id/r_cut_h"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/r_cut_l"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:defaultValue="0.5"
         app:labelText="@string/cut_h"
+        app:layout_constraintBottom_toTopOf="@id/r_cut_l"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:maxValue="1.0"
-        app:minValue="0.0"
-        app:defaultValue="0.5">
-    </org.adlerzz.pree.Ruchka>
+        app:minValue="0.0"></org.adlerzz.pree.Ruchka>
 
     <org.adlerzz.pree.Ruchka
         android:id="@+id/r_cut_l"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/r_qu"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:defaultValue="0.5"
         app:labelText="@string/cut_l"
+        app:layout_constraintBottom_toTopOf="@id/r_qu"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:maxValue="1.0"
-        app:minValue="0.0"
-        app:defaultValue="0.5">
-    </org.adlerzz.pree.Ruchka>
+        app:minValue="0.0"></org.adlerzz.pree.Ruchka>
 
     <org.adlerzz.pree.Ruchka
         android:id="@+id/r_qu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:defaultValue="0.0"
         app:labelText="@string/qu"
+        app:layout_constraintBottom_toTopOf="@id/button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:maxValue="1.0"
-        app:minValue="0.0"
-        app:defaultValue="0.0">
-    </org.adlerzz.pree.Ruchka>
+        app:minValue="0.0"></org.adlerzz.pree.Ruchka>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
